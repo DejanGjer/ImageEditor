@@ -1,0 +1,15 @@
+<!-- image.component.html -->
+
+<h3 class="text-center m-4">{{title}}</h3>
+
+<div *ngIf="imageData; else backgroundImage">
+    <img [src]="imageData" class="img-fluid" alt="Received Image" />
+</div>
+  
+<ng-template #backgroundImage>
+<div class="background-container">
+    <!-- Your background content here -->
+    <p class="background-text">Select Image First</p>
+</div>
+</ng-template>
+  

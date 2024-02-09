@@ -1,0 +1,11 @@
+<div class="row">
+    <label>{{ label }}</label>
+</div>
+<div class="row">
+    <div class="col-9">
+        <input class="slider" type="range" [value]="value" [min]="min" [max]="max" (input)="onSliderChange($event)" />
+    </div>
+    <div class="col-3">
+        <span class="slider-value">{{ value }}</span>
+    </div>
+</div>
