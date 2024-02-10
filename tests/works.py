@@ -9,7 +9,8 @@ currentImage = None
 
 def displayImage(displayImage):
     global currentImage
-    ImagetoDisplay = displayImage.resize((900,600), Image.ANTIALIAS)
+    # ImagetoDisplay = displayImage.resize((900,600), Image.ANTIALIAS)
+    ImagetoDisplay = displayImage.resize((900,600))
     ImagetoDisplay = ImageTk.PhotoImage(ImagetoDisplay)
     showWindow.config(image=ImagetoDisplay)
     showWindow.photo_ref = ImagetoDisplay
@@ -64,8 +65,16 @@ def brightness(brightness_pos):
 def contrast(contrast_pos):
     global currentImage
     contrast_pos = float(contrast_pos)
-    enhancer = ImageEnhance.Contrast(originalImage)
-    currentImage = enhancer.enhance(contrast_pos)
+    # enhancer = ImageEnhance.Contrast(originalImage)
+    # currentImage = enhancer.enhance(contrast_pos)
+
+    adjusted_image = np.array(originalImage).astype(np.int32)
+    print(adjusted_image.dtype)
+    print(adjusted_image.shape)
+    print(type(contrast_pos))
+    adjusted_image = (adjusted_image - 128) * contrast_pos + 128
+    adjusted_image = np.clip(adjusted_image, 0, 255)
+    currentImage = Image.fromarray(adjusted_image.astype('uint8'))
     displayImage(currentImage)
     
 def sharpness(sharpness_pos):

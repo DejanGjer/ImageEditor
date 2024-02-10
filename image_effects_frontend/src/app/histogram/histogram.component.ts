@@ -49,6 +49,7 @@ export class HistogramComponent implements OnInit, AfterViewInit{
     };
 
     const options: ChartOptions<'bar'> = {
+      responsive: true,
       scales: {
         x: {
           type: 'linear',

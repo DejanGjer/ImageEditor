@@ -10,12 +10,15 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from PIL import Image, ImageTk, ImageEnhance
+from .utils.image_processing import ImageProcessing
 
-ORIGINAL_IMAGE_PATH = './api/static/img/lena.tif'
-IMAGE_PATH = './api/static/img/lena_adjusted.jpg'
+ORIGINAL_IMAGE_PATH = './api/static/img/elemnti.bmp'
+IMAGE_PATH = './api/static/img/elementi_adjusted.jpg'
 
 class AdjustImageView(APIView):
     parser_classes = [JSONParser]
+    processing = ImageProcessing()
 
     def get(self, request, format=None):
         print("Get request received")
@@ -28,23 +31,22 @@ class AdjustImageView(APIView):
 
     def post(self, request, format=None):
         print("Post request received")
-        print(request.data)
-        brightness = request.data.get('brightness', 0)
-        print(brightness)
-        image = plt.imread(ORIGINAL_IMAGE_PATH).astype(np.int32)
-        print(image.shape)
-        # brightness_factor = 1.0 + (brightness / 100.0)
-        # Increase the brightness
-        adjusted_image = np.clip(image + brightness, 0, 255).astype(np.uint8)
-        adjusted_image = cv2.cvtColor(adjusted_image, cv2.COLOR_BGR2RGB)
-        print(adjusted_image.shape)
-        adjusted_image_path = IMAGE_PATH
-        cv2.imwrite(adjusted_image_path, adjusted_image)
+        self.processing.adjust_image(request.data)
+        # brightness = request.data.get('brightness', 0)
+        # print(brightness)
+        # image = plt.imread(ORIGINAL_IMAGE_PATH).astype(np.int32)
+        # adjusted_image = np.clip(image + brightness, 0, 255).astype(np.uint8)
+        # adjusted_image = cv2.cvtColor(adjusted_image, cv2.COLOR_BGR2RGB)
+        # adjusted_image_path = IMAGE_PATH
+        # cv2.imwrite(adjusted_image_path, adjusted_image)
 
-        if os.path.exists(adjusted_image_path):
-            with open(adjusted_image_path, 'rb') as image_file:
-                file = image_file.read()
-                return HttpResponse(file, content_type="image/png")
+        if os.path.exists(self.processing.get_adjusted_image_path()):
+            with open(self.processing.get_adjusted_image_path(), 'rb') as image_file:
+                try:
+                    file = image_file.read()
+                    return HttpResponse(file, content_type="image/png")
+                except IOError as message:
+                    print(f"IOError while loading image - continuing to load image")
         else:
             return HttpResponse(status=404)
 
@@ -75,6 +77,7 @@ class HistogramDataView(APIView):
         for i in range(X.shape[0]):
             for j in range(X.shape[1]):
                 hist_x[X[i,j]] += 1
+
         return hist_x
     
     def standard(self, mat):
@@ -93,9 +96,9 @@ class HistogramDataView(APIView):
             image = plt.imread(IMAGE_PATH)
         else: 
             image = plt.imread(ORIGINAL_IMAGE_PATH)
-        if len(image.shape) > 2:
-            image = np.sum(image, axis=2) / 3
         # convert image to greyscale if it is not already
+        if len(image.shape) > 2:
+            image = np.sum(image, axis=2) // 3
         image = self.standard(image)
         histogram_data = self.histogram(image)
         # print(histogram_data)

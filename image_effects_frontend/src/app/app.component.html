@@ -5,32 +5,47 @@
     <app-image-upload></app-image-upload>
   </div> -->
   <div class="editor row mt-5">
-    <div class="editor-canvas col-4">
+    <div class="col-8">
+      <div class="editor row mt-2">
+        <div class="editor-canvas col-6">
+          <app-image-view [original]="true" [title]="'Original Image'"></app-image-view>
+        </div>
+        <div class="editor-canvas col-6">
+          <app-image-view [original]="false" [title]="'Modified Image'"></app-image-view>
+        </div>
+      </div>
+      <div class="editor row mt-2">
+        <div class="editor-canvas col-12">
+          <app-histogram></app-histogram>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="editor-canvas col-4">
       <app-image-view [original]="true" [title]="'Original Image'"></app-image-view>
     </div>
     <div class="editor-canvas col-4">
       <app-image-view [original]="false" [title]="'Modified Image'"></app-image-view>
-    </div>
+    </div> -->
     
     <div class="editor-options col-4 pl-2 pr-2">
       <h3 class="pl-5 m-3">Controls</h3>
-      <app-slider label="Rotation" [value]="0" [min]="-25" [max]="25"></app-slider>
-      <app-slider label="Brightness" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Contrast" [value]="0" [min]="-100" [max]="100"></app-slider>
-      <app-slider label="Warmth" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Saturation" [value]="0" [min]="-100" [max]="100"></app-slider>
-      <app-slider label="Fade" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Highlights" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Shadows" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Vignette" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Tilt shift" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Sharpen" [value]="0" [min]="-255" [max]="255"></app-slider>
-      <app-slider label="Zoom In" [value]="1" [min]="1" [max]="10"></app-slider>
+      <app-slider label="Rotation" [value]="0" [min]="-25" [max]="25" [step]="1"></app-slider>
+      <app-slider label="Brightness" [value]="0" [min]="-255" [max]="255" [step]="1"></app-slider>
+      <app-slider label="Contrast" [value]="1" [min]="0" [max]="2" [step]="0.1"></app-slider>
+      <app-slider label="Warmth" [value]="0" [min]="-100" [max]="100" [step]="1"></app-slider>
+      <app-slider label="Saturation" [value]="1" [min]="0" [max]="2" [step]="0.1"></app-slider>
+      <app-slider label="Fade" [value]="0" [min]="0" [max]="1" [step]="0.05"></app-slider>
+      <app-slider label="Highlights" [value]="0" [min]="0" [max]="1" [step]="0.05"></app-slider>
+      <app-slider label="Shadows" [value]="0" [min]="0" [max]="1" [step]="0.05"></app-slider>
+      <app-slider label="Vignette" [value]="0" [min]="-255" [max]="255" [step]="1"></app-slider>
+      <app-slider label="Tilt shift" [value]="0" [min]="-255" [max]="255" [step]="1"></app-slider>
+      <app-slider label="Sharpen" [value]="0" [min]="-255" [max]="255" [step]="1"></app-slider>
+      <app-slider label="Zoom In" [value]="1" [min]="1" [max]="10" [step]="1"></app-slider>
     </div>
   </div>
-  <div class="row mt-5">
+  <!-- <div class="row mt-5">
     <div class="editor-canvas col-8">
       <app-histogram></app-histogram>
     </div>
-  </div>
+  </div> -->
 </div>

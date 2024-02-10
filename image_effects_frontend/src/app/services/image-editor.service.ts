@@ -23,7 +23,7 @@ export class ImageEditorService {
     // Adjust the URL and payload based on your backend API
     const url = `${this.apiUrl}adjust-image/`;
     console.log("Send post request to " + url);
-    const payload = { "brightness": value };
+    const payload = { [effect_name]: value };
     console.log(payload);
     // const httpOptions = {
     //   headers: new HttpHeaders({'Content-Type': 'application/json'}),

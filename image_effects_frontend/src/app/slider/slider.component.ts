@@ -14,6 +14,7 @@ export class SliderComponent implements OnInit{
   @Input() value: number = 0;
   @Input() min: number = 0;
   @Input() max: number = 100;
+  @Input() step: number = 1;
 
   constructor(private imageEditorService: ImageEditorService) {}
 
@@ -24,12 +25,12 @@ export class SliderComponent implements OnInit{
   onSliderChange(event: any): void {
     const newValue = event.target.valueAsNumber;
     this.value = newValue;
-    this.imageEditorService.adjustImage(this.label, newValue).subscribe({
+    this.imageEditorService.adjustImage(this.label.toLowerCase(), newValue).subscribe({
       next: (data) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           console.log("Image data received from backend");
-          console.log(reader.result);
+          // console.log(reader.result);
           const imageData = reader.result as string;
           this.imageEditorService.setImageData(imageData);
           // this.imageData = reader.result;

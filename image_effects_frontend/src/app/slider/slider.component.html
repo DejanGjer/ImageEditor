@@ -2,10 +2,11 @@
     <label>{{ label }}</label>
 </div>
 <div class="row">
-    <div class="col-9">
-        <input class="slider" type="range" [value]="value" [min]="min" [max]="max" (input)="onSliderChange($event)" />
+    <div class="col-8">
+        <input class="slider" type="range" [value]="value" [min]="min" [max]="max" [step]="step" (input)="onSliderChange($event)" />
     </div>
-    <div class="col-3">
+    <div class="col-4">
         <span class="slider-value">{{ value }}</span>
+        <span class="slider-range">[{{ min }} , {{ max }}]</span>
     </div>
 </div>

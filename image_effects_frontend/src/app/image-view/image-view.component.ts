@@ -51,7 +51,7 @@ export class ImageViewComponent implements OnInit{
       );
     } 
     else {
-      this.imageEditorService.getImageData().pipe(takeUntil(timer(300))).subscribe(
+      this.imageEditorService.getImageData().pipe(takeUntil(timer(1000))).subscribe(
         imageData => {
           this.imageData = imageData;
         },
