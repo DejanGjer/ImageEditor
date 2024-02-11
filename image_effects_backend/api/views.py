@@ -13,19 +13,20 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from .utils.image_processing import ImageProcessing
 
-ORIGINAL_IMAGE_PATH = './api/static/img/elemnti.bmp'
-IMAGE_PATH = './api/static/img/elementi_adjusted.jpg'
+# ORIGINAL_IMAGE_PATH = './api/static/img/elemnti.bmp'
+# IMAGE_PATH = './api/static/img/elementi_adjusted.jpg'
+
+processing = ImageProcessing()
 
 class AdjustImageView(APIView):
     parser_classes = [JSONParser]
-    processing = ImageProcessing()
 
     def get(self, request, format=None):
         print("Get request received")
         # asking for the original image is same as resetting the image
-        self.processing.initialize_settings()
-        if os.path.exists(self.processing.get_original_image_path()):
-            with open(self.processing.get_original_image_path(), 'rb') as image_file:
+        processing.initialize_settings()
+        if os.path.exists(processing.get_original_image_path()):
+            with open(processing.get_original_image_path(), 'rb') as image_file:
                 file = image_file.read()
                 return HttpResponse(file, content_type="image/png")
         else:
@@ -33,7 +34,7 @@ class AdjustImageView(APIView):
 
     def post(self, request, format=None):
         print("Post request received")
-        self.processing.adjust_image(request.data)
+        processing.adjust_image(request.data)
         # brightness = request.data.get('brightness', 0)
         # print(brightness)
         # image = plt.imread(ORIGINAL_IMAGE_PATH).astype(np.int32)
@@ -42,8 +43,8 @@ class AdjustImageView(APIView):
         # adjusted_image_path = IMAGE_PATH
         # cv2.imwrite(adjusted_image_path, adjusted_image)
 
-        if os.path.exists(self.processing.get_adjusted_image_path()):
-            with open(self.processing.get_adjusted_image_path(), 'rb') as image_file:
+        if os.path.exists(processing.get_adjusted_image_path()):
+            with open(processing.get_adjusted_image_path(), 'rb') as image_file:
                 try:
                     file = image_file.read()
                     return HttpResponse(file, content_type="image/png")
@@ -89,10 +90,10 @@ class HistogramDataView(APIView):
     def get(self, request, format=None):
         print("Get request received for histogram data")
         image = None
-        if os.path.exists(IMAGE_PATH):
-            image = plt.imread(IMAGE_PATH)
+        if os.path.exists(processing.get_adjusted_image_path()):
+            image = plt.imread(processing.get_adjusted_image_path())
         else: 
-            image = plt.imread(ORIGINAL_IMAGE_PATH)
+            image = plt.imread(processing.get_original_image_path())
         # convert image to greyscale if it is not already
         if len(image.shape) > 2:
             image = np.sum(image, axis=2) // 3

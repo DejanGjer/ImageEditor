@@ -10,8 +10,8 @@ from PIL import Image
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
-ORIGINAL_IMAGE_PATH = './api/static/img/elementi.bmp'
-IMAGE_PATH = './api/static/img/elementi_adjusted.jpg'
+ORIGINAL_IMAGE_PATH = './api/static/img/barbara.jpg'
+IMAGE_PATH = './api/static/img/barbara_adjusted.jpg'
 
 class ImageProcessing:
     def __init__(self):
