@@ -19,7 +19,7 @@ export class SliderComponent implements OnInit{
   constructor(private imageEditorService: ImageEditorService) {}
 
   ngOnInit(): void {
-    this.onSliderChange({target: {valueAsNumber: this.value}});
+    // this.onSliderChange({target: {valueAsNumber: this.value}});
   }
 
   onSliderChange(event: any): void {

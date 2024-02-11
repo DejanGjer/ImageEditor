@@ -23,6 +23,22 @@ class ImageProcessing:
         print("INITIALIZING IMAGE PROCESSING")
 
     def initialize_settings(self):
+        # default settings
+        self.default_brightness = 0
+        self.default_contrast = 1
+        self.default_sharpness = 1
+        self.default_blur = 1
+        self.default_warmth = 0
+        self.default_saturation = 1
+        self.default_rotation = 0
+        self.default_fade = 0
+        self.default_highlights = 0
+        self.default_shadows = 0
+        self.default_vignette = 0
+        self.default_radial_tilt_shift = 0
+        self.default_linear_tilt_shift = 0
+        self.default_zoom = 1
+        # current settings
         self.brightness = 0
         self.contrast = 1
         self.sharpness = 1
@@ -75,56 +91,64 @@ class ImageProcessing:
         self.image = np.copy(self.original_image)
         if 'brightness' in adjustments:
             self.brightness = adjustments['brightness']
-        self.apply_brightness()
+        if self.brightness != self.default_brightness or 'brightness' in adjustments:
+            self.apply_brightness()
         if 'contrast' in adjustments:
             self.contrast = adjustments['contrast']
-        self.apply_contrast()
+        if self.contrast != self.default_contrast or 'contrast' in adjustments:
+            self.apply_contrast()
         if 'sharpness' in adjustments:
             self.sharpness = adjustments['sharpness']
-        self.apply_sharpness()
+        if self.sharpness != self.default_sharpness or 'sharpness' in adjustments:
+            self.apply_sharpness()
         if 'blur' in adjustments:
             self.blur = adjustments['blur']
-        self.apply_blur()
+        if self.blur != self.default_blur or 'blur' in adjustments:
+            self.apply_blur()
         if 'warmth' in adjustments:
             self.warmth = adjustments['warmth']
-        self.apply_warmth()
+        if self.warmth != self.default_warmth or 'warmth' in adjustments:
+            self.apply_warmth()
         if 'saturation' in adjustments:
             self.saturation = adjustments['saturation']
-        self.apply_saturation()
+        if self.saturation != self.default_saturation or 'saturation' in adjustments:
+            self.apply_saturation()
         if 'rotation' in adjustments:
             self.rotation = adjustments['rotation']
-        self.apply_rotation()
+        if self.rotation != self.default_rotation or 'rotation' in adjustments:
+            self.apply_rotation()
         if 'fade' in adjustments:
             self.fade = adjustments['fade']
-        self.apply_fade()
+        if self.fade != self.default_fade or 'fade' in adjustments:
+            self.apply_fade()
         if 'highlights' in adjustments:
             self.highlights = adjustments['highlights']
-        self.apply_highlights()
+        if self.highlights != self.default_highlights or 'highlights' in adjustments:
+            self.apply_highlights()
         if 'shadows' in adjustments:
             self.shadows = adjustments['shadows']
-        self.apply_shadows()
+        if self.shadows != self.default_shadows or 'shadows' in adjustments:
+            self.apply_shadows()
         if 'vignette' in adjustments:
             self.vignette = adjustments['vignette']
-        self.apply_vignette()
+        if self.vignette != self.default_vignette or 'vignette' in adjustments:
+            self.apply_vignette()
         if 'radial tilt shift' in adjustments:
-            self.radial_tilt_shift = adjustments['radial tilt shift']           
-        self.apply_radial_tilt_shift()
+            self.radial_tilt_shift = adjustments['radial tilt shift']
+        if self.radial_tilt_shift != self.default_radial_tilt_shift or 'radial tilt shift' in adjustments:           
+            self.apply_radial_tilt_shift()
         if 'linear tilt shift' in adjustments:
             self.linear_tilt_shift = adjustments['linear tilt shift']
-        self.apply_linear_tilt_shift()
+        if self.linear_tilt_shift != self.default_linear_tilt_shift or 'linear tilt shift' in adjustments:
+            self.apply_linear_tilt_shift()
         if 'zoom in' in adjustments:
             self.zoom = adjustments['zoom in']
-        self.apply_zoom()
-        # check if adjusted image has any pixels different than 0
-        # if np.any(self.image):
-        #     print("ADJUSTED IMAGE HAS PIXELS")
-        # else: 
-        #     print("ADJUSTED IMAGE HAS NO PIXELS!!!!!!!!")
+        if self.zoom != self.default_zoom or 'zoom in' in adjustments:
+            self.apply_zoom()
         self.save_adjusted_image()
 
     def apply_brightness(self):
-        adjusted_image = np.clip(self.image + self.brightness, 0, 255)
-        self.image = adjusted_image
+        self.image = np.clip(self.image + self.brightness, 0, 255)
 
     def apply_contrast(self):
         # Ensure the contrast coefficient is within the valid range
@@ -236,7 +260,6 @@ class ImageProcessing:
         self.image = adjusted_image
 
     def apply_linear_tilt_shift(self):
-        print(f"APPLYING LINEAR TILT SHIFT {self.linear_tilt_shift}")
         height, width, _ = self.image.shape
         # Create a grid of coordinates
         y, x = np.ogrid[:height, :width]

@@ -50,13 +50,44 @@ export class ImageViewComponent implements OnInit{
         }
       );
     } 
-    else {
-      this.imageEditorService.getImageData().pipe(takeUntil(timer(1000))).subscribe(
-        imageData => {
-          this.imageData = imageData;
-        },
-      );
-    }
+      // this.imageEditorService.getImageData().pipe(takeUntil(timer(1000))).subscribe(
+      //   imageData => {
+      //     this.imageData = imageData;
+      //   },
+      // );
+
+    this.imageEditorService.getOriginalImage().pipe(takeUntil(timer(500))).subscribe({
+      next: (data) => {
+        console.log("PROCESSING ORIGINAL IMAGE")
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // console.log("Image data received from backend");
+          // console.log(reader.result);
+          // const imageData = reader.result.toString() as string;
+          // this.imageEditorService.setImageData(imageData);
+          if (reader.result != null) {
+            this.imageData = reader.result.toString() as string;
+            // console.log("Oroginal image data received from backend");
+            // console.log(this.imageData);
+          }
+        };
+        reader.readAsDataURL(new Blob([data]));
+        this.imageEditorService.updateHistogram().subscribe({
+          next: (data) => {
+            console.log("Histogram data received from backend");
+            // console.log(data);
+            this.imageEditorService.setHistogramData(data);
+          },
+          error: (error) => {
+            console.error('Error updating histogram:', error);
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error uploading image:', error);
+      }
+    });
+    
   }
 
   // convertToDataUrl(arrayBuffer: ArrayBuffer): string {

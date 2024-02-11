@@ -13,11 +13,12 @@ export class ImageEditorService {
 
   constructor(private http: HttpClient) {}
 
-  // getAdjustedImage(): Observable<Blob> {
-  //   // Adjust the URL and payload based on your backend API
-  //   const url = `${this.apiUrl}adjusted-image/`;
-  //   return this.http.get(url, { responseType: 'blob' });
-  // }
+  getOriginalImage(): Observable<Blob> {
+    // Adjust the URL and payload based on your backend API
+    console.log("GET REQUEST FOR ORIGINAL IMAGE")
+    const url = `${this.apiUrl}adjust-image/`;
+    return this.http.get(url, { responseType: 'blob' });
+  }
 
   adjustImage(effect_name: string, value: number): Observable<Blob> {
     // Adjust the URL and payload based on your backend API
@@ -25,10 +26,6 @@ export class ImageEditorService {
     console.log("Send post request to " + url);
     const payload = { [effect_name]: value };
     console.log(payload);
-    // const httpOptions = {
-    //   headers: new HttpHeaders({'Content-Type': 'application/json'}),
-    //   withCredentials: true
-    // }
 
     return this.http.post(url, payload, {withCredentials: true, responseType: 'blob'});
   }

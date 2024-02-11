@@ -22,8 +22,8 @@ class AdjustImageView(APIView):
 
     def get(self, request, format=None):
         print("Get request received")
-        if os.path.exists(IMAGE_PATH):
-            with open(IMAGE_PATH, 'rb') as image_file:
+        if os.path.exists(self.processing.get_original_image_path()):
+            with open(self.processing.get_original_image_path(), 'rb') as image_file:
                 file = image_file.read()
                 return HttpResponse(file, content_type="image/png")
         else:
@@ -73,21 +73,16 @@ class HistogramDataView(APIView):
     parser_classes = [JSONParser]
 
     def histogram(self, X):
-        hist_x = np.zeros(256)
-        for i in range(X.shape[0]):
-            for j in range(X.shape[1]):
-                hist_x[X[i,j]] += 1
-
-        return hist_x
+        # hist_x = np.zeros(256)
+        # for i in range(X.shape[0]):
+        #     for j in range(X.shape[1]):
+        #         hist_x[X[i,j]] += 1
+       
+        # return hist_x
+        return np.bincount(X.ravel(), minlength=256)
     
     def standard(self, mat):
-        for i in range(mat.shape[0]):
-            for j in range(mat.shape[1]):
-                if(mat[i,j]>255):
-                    mat[i,j]=255
-                if(mat[i,j]<0):
-                    mat[i,j]=0
-        return mat.astype(np.uint8)
+        return np.clip(mat, 0, 255).astype(np.uint8)
 
     def get(self, request, format=None):
         print("Get request received for histogram data")
