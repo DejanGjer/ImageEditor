@@ -14,15 +14,15 @@ ORIGINAL_IMAGE_PATH = './api/static/img/elementi.bmp'
 IMAGE_PATH = './api/static/img/elementi_adjusted.jpg'
 
 class ImageProcessing:
-    def __init__(self, original_image=None, image=None):
-        self.original_image = original_image
-        self.image = image
-        if self.original_image is None or self.image is None:
-            self.load_images()
+    def __init__(self):
         self.initialize_settings()
-        print("INITIALIZING IMAGE PROCESSING")
 
     def initialize_settings(self):
+        print("INITIALIZING IMAGE PROCESSING")
+        self.original_image = None
+        self.load_original_image()
+        self.image = np.copy(self.original_image)
+        self.save_adjusted_image()
         # default settings
         self.default_brightness = 0
         self.default_contrast = 1
@@ -72,14 +72,14 @@ class ImageProcessing:
                         print(f"IOError while loading image - continuing to load image")
                         locked = True
                 
-    def load_images(self):
-        if self.original_image is None:
-            if os.path.exists(ORIGINAL_IMAGE_PATH):
-                self.original_image = plt.imread(ORIGINAL_IMAGE_PATH).astype(np.int32)
-        if self.image is None:
-            if os.path.exists(IMAGE_PATH):
-                with open(IMAGE_PATH, 'rb') as image_file:
-                    self.image = plt.imread(IMAGE_PATH).astype(np.int32)
+    # def load_images(self):
+    #     if self.original_image is None:
+    #         if os.path.exists(ORIGINAL_IMAGE_PATH):
+    #             self.original_image = plt.imread(ORIGINAL_IMAGE_PATH).astype(np.int32)
+    #     if self.image is None:
+    #         if os.path.exists(IMAGE_PATH):
+    #             with open(IMAGE_PATH, 'rb') as image_file:
+    #                 self.image = plt.imread(IMAGE_PATH).astype(np.int32)
 
     def save_adjusted_image(self):
         self.image = cv2.cvtColor(self.image.astype(np.uint8), cv2.COLOR_BGR2RGB)

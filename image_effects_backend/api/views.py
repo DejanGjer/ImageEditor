@@ -10,7 +10,7 @@ import os
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image, ImageTk, ImageEnhance
+from PIL import Image
 from .utils.image_processing import ImageProcessing
 
 ORIGINAL_IMAGE_PATH = './api/static/img/elemnti.bmp'
@@ -22,6 +22,8 @@ class AdjustImageView(APIView):
 
     def get(self, request, format=None):
         print("Get request received")
+        # asking for the original image is same as resetting the image
+        self.processing.initialize_settings()
         if os.path.exists(self.processing.get_original_image_path()):
             with open(self.processing.get_original_image_path(), 'rb') as image_file:
                 file = image_file.read()
