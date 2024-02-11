@@ -3,6 +3,7 @@ import cv2
 import colorsys
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import signal
 from scipy.ndimage import rotate
 from PIL import ImageFile
 from PIL import Image
@@ -25,12 +26,16 @@ class ImageProcessing:
         self.brightness = 0
         self.contrast = 1
         self.sharpness = 1
+        self.blur = 1
         self.warmth = 0
         self.saturation = 1
         self.rotation = 0
         self.fade = 0
         self.highlights = 0
         self.shadows = 0
+        self.vignette = 0
+        self.radial_tilt_shift = 0
+        self.linear_tilt_shift = 0
         self.zoom = 1
 
     def get_adjusted_image_path(self):
@@ -61,36 +66,9 @@ class ImageProcessing:
                     self.image = plt.imread(IMAGE_PATH).astype(np.int32)
 
     def save_adjusted_image(self):
-        # print(f"SHAPE OF ADJUSTED IMAGE: {self.image.shape}")
-        # print(f"TYPE OF ADJUSTED IMAGE: {self.image.dtype}")
         self.image = cv2.cvtColor(self.image.astype(np.uint8), cv2.COLOR_BGR2RGB)
         cv2.imwrite(IMAGE_PATH, self.image)
-        # # save image with matplotlib
-        # plt.imsave("./api/static/img/plt_saved.jpg", self.image)
-        # pil_image = Image.fromarray(self.image)
-        # pil_image.save("./api/static/img/pil_saved.jpg")
-        # # save image array to file
-        # np.save("./api/static/img/np_saved.npy", self.image)
-
-    # def rgb_to_hsv(self, rgb_image):
-    #     # Convert RGB image to HSV
-    #     hsv_image = np.zeros_like(rgb_image, dtype=np.float32)
-    #     for i in range(rgb_image.shape[0]):
-    #         for j in range(rgb_image.shape[1]):
-    #             hsv_image[i, j, :] = colorsys.rgb_to_hsv(*rgb_image[i, j, :]/255.0)
-
-    #     return hsv_image
-
-    # def hsv_to_rgb(self, hsv_image):
-    #     # Convert HSV image to RGB
-    #     rgb_image = np.zeros_like(hsv_image, dtype=np.uint8)
-    #     for i in range(hsv_image.shape[0]):
-    #         for j in range(hsv_image.shape[1]):
-    #             rgb_image[i, j, :] = np.array(colorsys.hsv_to_rgb(*hsv_image[i, j, :])) * 255.0
-
-    #     return rgb_image
-
-
+     
     def adjust_image(self, adjustments):
         # self.load_original_image()
         # copy the original image to the image that will be adjusted
@@ -104,6 +82,9 @@ class ImageProcessing:
         if 'sharpness' in adjustments:
             self.sharpness = adjustments['sharpness']
         self.apply_sharpness()
+        if 'blur' in adjustments:
+            self.blur = adjustments['blur']
+        self.apply_blur()
         if 'warmth' in adjustments:
             self.warmth = adjustments['warmth']
         self.apply_warmth()
@@ -122,8 +103,17 @@ class ImageProcessing:
         if 'shadows' in adjustments:
             self.shadows = adjustments['shadows']
         self.apply_shadows()
-        if 'zoom' in adjustments:
-            self.zoom = adjustments['zoom']
+        if 'vignette' in adjustments:
+            self.vignette = adjustments['vignette']
+        self.apply_vignette()
+        if 'radial tilt shift' in adjustments:
+            self.radial_tilt_shift = adjustments['radial tilt shift']           
+        self.apply_radial_tilt_shift()
+        if 'linear tilt shift' in adjustments:
+            self.linear_tilt_shift = adjustments['linear tilt shift']
+        self.apply_linear_tilt_shift()
+        if 'zoom in' in adjustments:
+            self.zoom = adjustments['zoom in']
         self.apply_zoom()
         # check if adjusted image has any pixels different than 0
         # if np.any(self.image):
@@ -144,10 +134,26 @@ class ImageProcessing:
         self.image = adjusted_image
 
     def apply_sharpness(self):
-        # kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        # adjusted_image = cv2.filter2D(self.image, -1, kernel)
-        # self.image = adjusted_image
-        pass
+        kernel = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 0]], dtype=np.float32)
+        kernel[1, 1] = kernel[1, 1] + self.sharpness
+        kernel[0, 1] = kernel[0, 1] - self.sharpness / 4
+        kernel[1, 0] = kernel[1, 0] - self.sharpness / 4
+        kernel[1, 2] = kernel[1, 2] - self.sharpness / 4
+        kernel[2, 1] = kernel[2, 1] - self.sharpness / 4
+        adjusted_image = self.image
+        for i in range(3):
+            adjusted_image[:, :, i] = signal.convolve2d(adjusted_image[:, :, i], kernel, 'same')
+        adjusted_image = np.clip(adjusted_image, 0, 255)
+        self.image = adjusted_image.astype(np.int32)
+
+    def apply_blur(self):
+        kernel_size = 2 * self.blur + 1 
+        kernel = np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2)
+        adjusted_image = self.image
+        for i in range(3):
+            adjusted_image[:, :, i] = signal.convolve2d(adjusted_image[:, :, i], kernel, 'same')
+        adjusted_image = np.clip(adjusted_image, 0, 255)
+        self.image = adjusted_image.astype(np.int32)
 
     def apply_warmth(self):
         warmth_coefficient = np.clip(self.warmth, -100, 100)
@@ -196,8 +202,82 @@ class ImageProcessing:
         adjusted_image = np.clip(adjusted_image, 0, 255).astype(np.int32)
         self.image = adjusted_image
 
+    def apply_vignette(self):
+        height, width, _ = self.image.shape
+        # Create a grid of coordinates
+        y, x = np.ogrid[:height, :width]
+        # Calculate distance from the center
+        center_y, center_x = height / 2, width / 2
+        distance = np.sqrt((x - center_x)**2 + (y - center_y)**2) / np.sqrt(center_x**2 + center_y**2)
+        # Vignette effect formula
+        vignette_mask = 1 - self.vignette * distance
+        # Clip values to ensure they are in the valid range [0, 1]
+        vignette_mask = np.clip(vignette_mask, 0, 1)
+        # Apply the mask to each color channel
+        self.image = self.image * vignette_mask[:, :, np.newaxis]
+
+    def apply_radial_tilt_shift(self):
+        height, width, _ = self.image.shape
+        # Create a grid of coordinates
+        y, x = np.ogrid[:height, :width]
+        # Calculate distance from the center
+        center_y, center_x = height / 2, width / 2
+        distance = np.sqrt((x - center_x)**2 + (y - center_y)**2) / np.sqrt(center_x**2 + center_y**2)
+        # Blur strength based on the distance
+        blur_mask = 2 * (self.radial_tilt_shift * distance * 10).astype(np.int32) + 1
+        # Apply the mask to each color channel
+        kernel_sizes = np.unique(blur_mask)
+        adjusted_image = np.zeros_like(self.image)
+        for kernel_size in kernel_sizes:
+            kernel = np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2)
+            for i in range(3):
+                helper_image = signal.convolve2d(self.image[:, :, i], kernel, 'same')
+                adjusted_image[:, :, i] = np.where(blur_mask == kernel_size, helper_image, adjusted_image[:, :, i])
+        self.image = adjusted_image
+
+    def apply_linear_tilt_shift(self):
+        print(f"APPLYING LINEAR TILT SHIFT {self.linear_tilt_shift}")
+        height, width, _ = self.image.shape
+        # Create a grid of coordinates
+        y, x = np.ogrid[:height, :width]
+        # Calculate distance from the center
+        center_y, center_x = height / 2, width / 2
+        distance = np.abs(x - center_x) / center_x
+        # Blur strength based on the distance
+        blur_mask = 2 * (self.linear_tilt_shift * distance * 10).astype(np.int32) + 1
+        # Apply the mask to each color channel
+        kernel_sizes = np.unique(blur_mask)
+        adjusted_image = np.zeros_like(self.image)
+        for kernel_size in kernel_sizes:
+            kernel = np.ones((kernel_size, kernel_size), dtype=np.float32) / (kernel_size ** 2)
+            for i in range(3):
+                helper_image = signal.convolve2d(self.image[:, :, i], kernel, 'same')
+                adjusted_image[:, :, i] = np.where(blur_mask == kernel_size, helper_image, adjusted_image[:, :, i])
+        self.image = adjusted_image
+
     def apply_zoom(self):
-        pass
+        zoom_factor = self.zoom
+        # Get the shape of the original image
+        height, width, channels = self.image.shape
+        # Calculate the new dimensions after zooming
+        new_height = int(height * zoom_factor)
+        new_width = int(width * zoom_factor)
+        # Create 1D arrays representing the new indices for rows and columns
+        rows = np.arange(new_height) / zoom_factor
+        cols = np.arange(new_width) / zoom_factor
+        # Use broadcasting to create 2D arrays of indices
+        rows_indices, cols_indices = np.meshgrid(rows, cols, indexing='ij')
+        # Round indices to the nearest integer to get the corresponding pixel values
+        rows_indices = np.round(rows_indices).astype(np.int32)
+        cols_indices = np.round(cols_indices).astype(np.int32)
+        # Clip indices to stay within the bounds of the original image
+        rows_indices = np.clip(rows_indices, 0, height - 1)
+        cols_indices = np.clip(cols_indices, 0, width - 1)
+        # Create the zoomed image using advanced indexing
+        adjusted_image = self.image[rows_indices, cols_indices, :]
+        # Crop the center of the zoomed image to the original size
+        self.image = adjusted_image[new_height // 2 - height // 2: new_height // 2 + height // 2, 
+                                    new_width // 2 - width // 2: new_width // 2 + width // 2, :]
     
     def print_current_settings(self):
         print(f"Brightness: {self.brightness}")
