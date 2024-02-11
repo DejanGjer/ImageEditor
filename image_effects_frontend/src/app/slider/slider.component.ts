@@ -30,10 +30,8 @@ export class SliderComponent implements OnInit{
         const reader = new FileReader();
         reader.onloadend = () => {
           console.log("Image data received from backend");
-          // console.log(reader.result);
           const imageData = reader.result as string;
           this.imageEditorService.setImageData(imageData);
-          // this.imageData = reader.result;
         };
         reader.readAsDataURL(new Blob([data]));
         this.imageEditorService.updateHistogram().subscribe({

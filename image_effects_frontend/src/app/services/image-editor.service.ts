@@ -36,17 +36,6 @@ export class ImageEditorService {
     return this.http.get<{ histogram_data: Array<number> }>(url);
   }
 
-  // uploadImage(file: File): Observable<any> {
-  //   // Adjust the URL and payload based on your backend API
-  //   const url = `${this.apiUrl}upload-image`;
-  //   const formData = new FormData();
-  //   formData.append('image', file);
-  //   console.log(file);
-  //   return this.http.post(url, formData);
-  // }
-
-
-
   setImageData(imageData: string | null): void {
     this.imageDataSubject.next(imageData);
   }

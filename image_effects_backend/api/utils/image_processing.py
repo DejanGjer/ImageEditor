@@ -72,21 +72,12 @@ class ImageProcessing:
                         print(f"IOError while loading image - continuing to load image")
                         locked = True
                 
-    # def load_images(self):
-    #     if self.original_image is None:
-    #         if os.path.exists(ORIGINAL_IMAGE_PATH):
-    #             self.original_image = plt.imread(ORIGINAL_IMAGE_PATH).astype(np.int32)
-    #     if self.image is None:
-    #         if os.path.exists(IMAGE_PATH):
-    #             with open(IMAGE_PATH, 'rb') as image_file:
-    #                 self.image = plt.imread(IMAGE_PATH).astype(np.int32)
 
     def save_adjusted_image(self):
         self.image = cv2.cvtColor(self.image.astype(np.uint8), cv2.COLOR_BGR2RGB)
         cv2.imwrite(IMAGE_PATH, self.image)
      
     def adjust_image(self, adjustments):
-        # self.load_original_image()
         # copy the original image to the image that will be adjusted
         self.image = np.copy(self.original_image)
         if 'brightness' in adjustments:
